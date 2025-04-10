@@ -7,7 +7,7 @@ import urllib.parse
 username = urllib.parse.quote_plus("amitabhdas1998")
 password = urllib.parse.quote_plus("Harekrishna@123")
 MONGO_URI = os.getenv("MONGO_URI", f"mongodb+srv://{username}:{password}@cluster0.luwj61d.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-PROJECT_ID = "your_project_id"  # Replace with actual value
+PROJECT_ID = "67f1800dafdd5446211e7e2e"
 ADMIN_API_USER = "your_public_key"
 ADMIN_API_PASSWORD = "your_private_key"
 
