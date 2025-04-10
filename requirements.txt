@@ -1,0 +1,11 @@
+superlinked==22.6.4
+pymongo
+pandas
+fastapi
+uvicorn
+streamlit
+requests
+sqlalchemy
+llama-index
+sentence-transformers
+openai
