@@ -1,19 +1,17 @@
 from superlinked import framework as sl
-from fastapi import FastAPI
-import uvicorn
 import os
 import urllib.parse
 
 username = urllib.parse.quote_plus("amitabhdas1998")
-password = urllib.parse.quote_plus("Harekrishna@123")
-MONGO_URI = os.getenv("MONGO_URI", f"mongodb+srv://{username}:{password}@cluster0.luwj61d.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-PROJECT_ID = "67f1800dafdd5446211e7e2e"
-ADMIN_API_USER = "your_public_key"
-ADMIN_API_PASSWORD = "your_private_key"
+password = urllib.parse.quote_plus("GdhIC5wuD8pD6SdZ")  # New password
+HOST = "cluster0.au2tbgb.mongodb.net"  # New cluster
+DB_NAME = "ecommerce_db"
+CLUSTER_NAME = "Cluster0"
+PROJECT_ID = "67f7e2390bed5f7a93d04c9f"
+ADMIN_API_USER = "ogaqxsef"
+ADMIN_API_PASSWORD = "03dade6b-67fd-4276-9566-ba958df180ef"
 
 from superlinked_setup import product, product_index, query
-
-app = FastAPI()
 
 source = sl.RestSource(product)
 rest_query = sl.RestQuery(sl.RestDescriptor("search"), query)
@@ -22,27 +20,20 @@ executor = sl.RestExecutor(
     indices=[product_index],
     queries=[rest_query],
     vector_database=sl.MongoDBVectorDatabase(
-        MONGO_URI,
-        "ecommerce_db",
-        "products",
+        HOST,
+        DB_NAME,
+        CLUSTER_NAME,
         project_id=PROJECT_ID,
         admin_api_user=ADMIN_API_USER,
-        admin_api_password=ADMIN_API_PASSWORD
+        admin_api_password=ADMIN_API_PASSWORD,
+        username=username,
+        password=password
     )
 )
 
+print("Executor methods:", dir(executor))
 sl.SuperlinkedRegistry.register(executor)
 
-@app.post("/search")
-async def search(query_data: dict):
-    natural_query = query_data.get("natural_query")
-    limit = query_data.get("limit", 3)
-    # Try 'run' instead of 'execute_query'
-    results = executor.run(
-        rest_query,
-        params={"natural_query": natural_query, "limit": limit}
-    )
-    return [{"title": r.title, "price": r.price, "rating": r.review_rating} for r in results]
-
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    print("Starting Superlinked server...")
+    executor.run()

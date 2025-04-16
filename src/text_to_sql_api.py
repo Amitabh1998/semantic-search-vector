@@ -21,6 +21,7 @@ product_table = Table(
 metadata.create_all(engine)
 
 df = pd.read_json("data/processed/processed_sample.jsonl", lines=True)
+print(df.head())
 df.to_sql("products", engine, if_exists="replace", index=False)
 
 llm = OpenAI(temperature=0.1, model="gpt-3.5-turbo", api_key=os.getenv("OPENAI_API_KEY"))
@@ -31,7 +32,9 @@ app = FastAPI()
 
 @app.post("/search")
 async def search(query_data: dict):
+    print("Start")
     natural_query = query_data.get("natural_query")
+    print(f"Received query: {natural_query}")
     limit = query_data.get("limit", 3)
     results = nl_sql_retriever.retrieve(natural_query)[:limit]
     return [{"title": r.title, "price": r.price, "rating": r.review_rating} for r in results]

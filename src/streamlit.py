@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-# API endpoints
+# Define API endpoints
 SUPERLINKED_API = "http://localhost:8080/search"
 TEXT_TO_SQL_API = "http://localhost:8081/search"
 

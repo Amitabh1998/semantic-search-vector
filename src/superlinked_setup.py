@@ -1,3 +1,59 @@
+# import os
+# from superlinked import framework as sl
+# from pymongo import MongoClient
+# import json
+
+# # Connection details
+# username = "amitabhdas1998"
+# password = "GdhIC5wuD8pD6SdZ"
+# MONGO_URI = f"mongodb+srv://{username}:{password}@cluster0.au2tbgb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
+# # MongoDB setup
+# client = MongoClient(MONGO_URI)
+# db = client.ecommerce_db
+# collection = db.products
+
+# # Clear existing data (optional)
+# collection.drop()
+
+# # Load and ingest sample data
+# with open("data/processed/processed_sample.jsonl", "r") as f:
+#     for line in f:
+#         doc = json.loads(line)
+#         collection.insert_one(doc)
+
+# # Superlinked schema
+# class Product(sl.Schema):
+#     id: sl.IdField
+#     type: sl.String
+#     title: sl.String
+#     description: sl.String
+#     review_rating: sl.Float
+#     price: sl.Float
+
+# product = Product()
+
+# # Index and query setup
+# title_space = sl.TextSimilaritySpace(
+#     text=product.title,
+#     model="sentence-transformers/all-MiniLM-L6-v2"
+# )
+# description_space = sl.TextSimilaritySpace(
+#     text=product.description,
+#     model="sentence-transformers/all-MiniLM-L6-v2"
+# )
+# product_index = sl.Index([title_space, description_space])
+
+# query = (
+#     sl.Query(product_index)
+#     .find(product)
+#     .similar(title_space, "books")
+#     .filter(product.price < 100)
+#     .filter(product.rating > 4)
+# )
+
+# print("Setup complete. Database and index configured.")
+
 from superlinked import framework as sl
 from pymongo import MongoClient
 import os
@@ -5,15 +61,14 @@ import pandas as pd
 import urllib.parse
 
 # Encode MongoDB credentials
-username = urllib.parse.quote_plus("amitabhdas1998")
-password = urllib.parse.quote_plus("Harekrishna@123")
-MONGO_URI = os.getenv("MONGO_URI", f"mongodb+srv://{username}:{password}@cluster0.luwj61d.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-print(f"Raw username: amitabhdas1998, Escaped: {username}")
-print(f"Raw password: Harekrishna@123, Escaped: {password}")
-print(f"Constructed MONGO_URI: {MONGO_URI}")
+# Connection details
+username = "amitabhdas1998"
+password = "GdhIC5wuD8pD6SdZ"
+MONGO_URI = f"mongodb+srv://{username}:{password}@cluster0.au2tbgb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 client = MongoClient(MONGO_URI)
 db = client["ecommerce_db"]
+collection = db.default
 
 class ProductSchema(sl.Schema):
     id: sl.IdField
@@ -33,7 +88,7 @@ price_space = sl.NumberSpace(number=product.price, min_value=0.0, max_value=1000
 product_index = sl.Index(spaces=[title_space, description_space, review_space, price_space])
 
 def load_data_to_mongo(df):
-    collection = db["products"]
+    collection = db["default"]
     collection.drop()
     records = df.to_dict(orient="records")
     for record in records:
@@ -51,6 +106,7 @@ query = (
     .with_natural_query(sl.Param("natural_query"), sl.OpenAIClientConfig(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-3.5-turbo"))
     .select_all()
 )
+
 
 if __name__ == "__main__":
     df = pd.read_json("data/processed/processed_sample.jsonl", lines=True)
